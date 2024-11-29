@@ -5,6 +5,7 @@ Created on Thu Nov 28 14:42:01 2024
 @author: fbac7
 """
 import tkinter as tk
+from cProfile import label
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import json
@@ -14,6 +15,7 @@ platos = []
 
 # Cargar los platos desde el archivo JSON (si existe)
 def cargar_platos():
+    global platos
     if os.path.exists("platos.json"):
         with open("platos.json", "r", encoding="utf-8") as file:
             return json.load(file)
@@ -34,7 +36,6 @@ def agregar_plato():
     id_plato = entry_id.get()  # ID del plato
     unidad = entry_unidad.get()  # Unidad de almacenamiento del plato
     compartimiento = entry_compartimiento.get()  # Compartimiento donde se encuentra el plato
-    
     # Verificar si el ID es único
     for plato in platos:
         if plato["ID"] == id_plato:
@@ -56,12 +57,14 @@ def agregar_plato():
         
         # Mostrar mensaje de éxito
         messagebox.showinfo("Éxito", "Plato agregado correctamente")
-        
+
+
         # Limpiar los campos de entrada para que el usuario pueda agregar otro plato
         limpiar_campos()
     else:
         messagebox.showerror("Error", "Por favor, complete todos los campos")
-        
+
+
 def limpiar_campos():
     entry_id.delete(0, tk.END)
     entry_unidad.delete(0, tk.END)
@@ -225,29 +228,98 @@ def buscar_plato_por_compartimiento():
     else:
         # Mostrar un mensaje de error si el campo está vacío
         messagebox.showerror("Error", "Por favor, ingrese un compartimiento para buscar.")
-                  
-                    
-            
-
+'''
+def mostrar_platos():
+    if platos:
+        # Construir el texto de todos los platos, incluyendo el comentario
+        platos_texto = "\n".join([
+            f"ID: {plato['ID']}, Unidad: {plato['Unidad de almacenamiento']}, "
+            f"Compartimiento: {plato['Compartimiento']}"
+            for plato in platos
+        ])
+        # Mostrar la información en un messagebox
+        messagebox.showinfo("Platos", platos_texto)
+    else:
+        # Mensaje si no hay platos registrados
+        messagebox.showinfo("Sin platos", "No hay platos registrados")
+'''
+def mostrar_platos():
+    if platos:
+        platos_texto = ""
+        for plato in platos:
+            comentario = plato.get('comentario', 'Sin comentario')  # Si no tiene comentario, muestra un texto por defecto
+            platos_texto += f"ID: {plato['ID']}, Unidad: {plato['Unidad de almacenamiento']}, Compartimiento: {plato['Compartimiento']}, Comentario: {comentario}\n"
+        messagebox.showinfo("Platos registrados", platos_texto)
+    else:
+        messagebox.showinfo("Sin platos", "No hay platos registrados")
+# Función para actualizar el comentario
+'''
 def mostrar_platos():
     if platos:
         platos_texto = "\n".join([f"ID: {plato['ID']}, Unidad: {plato['Unidad de almacenamiento']}, Compartimiento: {plato['Compartimiento']}" for plato in platos])
         messagebox.showinfo("Platos", platos_texto)
     else:
         messagebox.showinfo("Sin platos", "No hay platos registrados")
+'''
+# Función para agregar comentario
+def agregar_comentario(id_plato, comentario):
+    for plato in platos:
+        if plato['ID'] == id_plato:
+            plato['comentario'] = comentario
+            messagebox.showinfo("Comentario actualizado", f"Comentario del plato con ID {id_plato} actualizado.")
+            return
+    messagebox.showinfo("Plato no encontrado", f"No se encontró un plato con ID {id_plato}.")
+
+# Función para abrir la ventana emergente donde se agrega el comentario
+def abrir_ventana_comentario():
+    # Obtener el ID dinámicamente desde el campo de entrada
+        id_plato = entry_id.get()
+        if not id_plato:
+            messagebox.showinfo("Error", "Por favor ingrese un ID válido.")
+            return
+        ventana_comentario = tk.Toplevel(root)  # Crear ventana emergente
+        ventana_comentario.title(f"Actualizar Comentario para ID {id_plato}")
+        ventana_comentario.geometry("400x200")
+
+    # Etiqueta y campo de entrada para el comentario
+        label_comentario = tk.Label(ventana_comentario, text="Nuevo comentario:")
+        label_comentario.pack()
+        entry_comentario = tk.Entry(ventana_comentario)
+        entry_comentario.pack()
+
+    # Función que actualiza el comentario cuando el usuario lo ingresa
+        def actualizar_comentario():
+            nuevo_comentario = entry_comentario.get()
+            if nuevo_comentario:
+                agregar_comentario(id_plato, nuevo_comentario)
+                ventana_comentario.destroy()  # Cerrar la ventana emergente
+            else:
+                messagebox.showinfo("Error", "Por favor ingrese un comentario.")
+
+    # Botón para guardar el comentario
+        btn_guardar = tk.Button(ventana_comentario, text="Guardar Comentario", command=actualizar_comentario)
+        btn_guardar.pack() # También añadido espacio entre widgets
+
+# Función para agregar el botón de "Agregar Comentario" en la interfaz
+def agregar_boton_comentario():
+    btn_comentar = tk.Button(root, text= "Agregar Comentario", command=abrir_ventana_comentario) # Llamar a abrir_ventana_comentario directamente
+    canvas.create_window(260, 380, window=btn_comentar)
+
 
 def confirmar_salir():
     respuesta = messagebox.askyesno("Confirmar salida", "¿Está seguro de que quiere salir?")
     if respuesta:
         root.destroy()
 
+
 def interfaz_grafica():
-    global root
+    global root,canvas
     root = tk.Tk()
     root.title("Gestión de platos de Petri")
     root.geometry("600x400")
     root.config(bg="#F8DE7E")
-    
+
+
     # Crear un Canvas dentro de la ventana principal
     canvas = tk.Canvas(root, width=600, height=400, bg="#F8DE7E")
     canvas.pack(fill="both", expand=True)
@@ -263,7 +335,7 @@ def interfaz_grafica():
         print(f"Error: {e}. No se pudo encontrar la imagen.")
     except Exception as e:
         print(f"Se produjo un error al cargar la imagen: {e}")
-    
+
     # Crear widgets dentro del Canvas
     global entry_id, entry_unidad, entry_compartimiento
     label1 = tk.Label(root, text="Id", bd=4, relief="groove")
@@ -298,7 +370,8 @@ def interfaz_grafica():
     
     # En la interfaz gráfica:
     button_mover = tk.Button(root, text="Mover plato (Solo laboratorista)", bd=5, relief="raised", command=mover_plato)
-    
+
+
     canvas.create_window(150, 60, window=btn_agregar)
     canvas.create_window(150, 100, window=btn_mostrar)
     canvas.create_window(150, 140, window=btn_editar)
@@ -309,7 +382,8 @@ def interfaz_grafica():
     canvas.create_window(150, 340, window=button_mover)
     canvas.create_window(150, 380, window=btn_salir)
 
+    agregar_boton_comentario()
     root.mainloop()
-
+if __name__ == "__main__":
 # Iniciar la interfaz gráfica
-interfaz_grafica()
+    interfaz_grafica()
