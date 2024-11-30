@@ -13,7 +13,7 @@ contacto con un nombre único (después de normalizarlo).
 nombres_registrados = set()
 
 def normalizar_nombre(nombre):
-    """normaliza el nombre para evitar duplicados insensibles a mayusculas y minusculas"""
+    """normaliza el nombre para evitar duplicados insensibles a mayúsculas y minuscules"""
     return nombre.strip().lower() # quito espacios y convierte a minusculas
 
    #funcion para agregar un contacto si no existe
@@ -43,12 +43,12 @@ def agregar_contacto(nombre,telefono,correo):
     if not telefono.isdigit() or not (7 <= len(telefono) <= 15):
         print("El telefono debe contener solo numeros y tener entre 7 y 15 digitos")
         return  # Después de mostrar el mensaje, el return hace que la función se detenga
-        # inmediatamente. Esto significa que no se ejecutará más código dentro de esa función
+        # Inmediatamente. Esto significa que no se ejecutará más código dentro de esa función
         # y el contacto no será agregado.
         # Sin el return, el código seguiría ejecutándose y agregaría
         # el contacto incluso si el nombre no es válido.
-    # validar correo: debe tener el formato esperado
 
+    # validar correo: debe tener el formato esperado
     if not re.match(r"[^@]+@[^@]+\.[^@]+", correo):  # Esto es una expresión regular simple para correos
         print("El correo no tiene un formato válido.")
         return
@@ -157,12 +157,38 @@ def editar_contacto(nombre):
 
     print("Contacto no encontrado.")  # Si no se encuentra el contacto
 
+def eliminar_contacto(nombre):
+
+    if not contactos:
+        print("No hay contactos para eliminar.")  # Validar si la lista está vacía
+        return
+
+    nombre_normalizado = normalizar_nombre(nombre)
+
+    for contacto in contactos:
+
+        if normalizar_nombre(contacto["nombre"]) == nombre_normalizado:
+            contactos.remove(contacto)
+            print(f"Contacto {nombre} eliminado correctamente.")
+            return
+
+    print("Contacto no encontrado")
+
+def mostrar_contactos():
+    if contactos:
+        print("\nLista de Contactos:")
+        for contacto in contactos:
+            print(contacto)
+    else:
+        print("\nLa lista de contactos esta vacia.")
 
 def mostrar_menu():
     print("\nSeleccione una opcion: ")
     print("1. Agregar un nuevo contacto")
     print("2. Editar un contacto existente")
-    print("3. Salir")
+    print("3. eliminar un contacto")
+    print("4. ver lista de contactos")
+    print("5. Salir")
 
 
 def pedir_datos():
@@ -187,21 +213,28 @@ def main():
             continuar = input("desea agregar otro contacto? (s/n): ")
 
             if continuar.lower() != "s":
+                print("Regresando al menu principal...")
                 continue
 
         elif opcion == "2":
             nombre = input("Ingrese el nombre del contacto a editar: ")
             editar_contacto(nombre)
+
         elif opcion == "3":
+            nombre = input("Ingrese el nombre del contacto a eliminar: ")
+            eliminar_contacto(nombre)
+
+        elif opcion == "4":
+            mostrar_contactos() # llama a la funcion para mostrar los contactos
+
+        elif opcion == "5":
             print("Gracias por usar el programa")
             break
+
         else:
-            print("Opcion no valida")
+            print("Opcion no valida. Por favor, intente de nuevo.")
 # Iniciar el programa
 if __name__ == "__main__":
     main()
 
     # Mostrar todos los contactos almacenados
-print("\nLista de Contactos:")
-for contacto in contactos:
-    print(contacto)
