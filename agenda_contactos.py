@@ -1,11 +1,38 @@
+import re # Para validar el correo
+
 #lista vacia para almacenar los contactos
 contactos = []
 
 #funcion para agregar un contacto si no existe
 def agregar_contacto(nombre,telefono,correo):
-
+    """
+        validar nombre: no debe estar vacio
+        Si el nombre ingresado es " " (solo espacios), nombre.strip()
+        se convierte en "" y el if se ejecuta, mostrando el mensaje:
+        "El nombre no puede estar vacío."
+        Si el nombre ingresado es "Juan", nombre.strip() no cambia nada
+        y el if no se ejecuta, por lo que el contacto se agrega.
+        """
+    if not nombre.strip():
+        print("El nombre no puede estar vacio.")
+        return
+    # validar telefono: debe ser solo numeros y tener entre
+    # 7 y 15 caracteres
+    if not telefono.isdigit() or not (7 <= len(telefono) <= 15):
+        print("El telefono debe contener solo numeros y tener entre 7 y 15 digitos")
+        return  # Después de mostrar el mensaje, el return hace que la función se detenga
+        # inmediatamente. Esto significa que no se ejecutará más código dentro de esa función
+        # y el contacto no será agregado.
+        # Sin el return, el código seguiría ejecutándose y agregaría
+        # el contacto incluso si el nombre no es válido.
+    # validar correo: debe tener el formato esperado
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", correo):  # Esto es una expresión regular simple para correos
+        print("El correo no tiene un formato válido.")
+        return
     #verifica si el nombre ya existe
     for contacto in contactos:
+        if contacto["nombre"].lower() == nombre.lower():
+            # convierte todos los caracteres a minúsculas, "Juan" es igual a "juan"
             print(f"El contacto con el nombre {nombre} ya existe")
             return # no agregar el contacto si ya existe
 
