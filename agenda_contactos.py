@@ -3,8 +3,29 @@ import re # Para validar el correo
 #lista vacia para almacenar los contactos
 contactos = []
 
-#funcion para agregar un contacto si no existe
+# Set para llevar un control eficiente de los nombres ya registrados
+"""
+Uso del set como única fuente de verdad para verificar duplicados,
+lo que hace que el código sea más eficiente. 
+El conjunto nombres_registrados garantiza que solo puedas tener un 
+contacto con un nombre único (después de normalizarlo).
+"""
+nombres_registrados = set()
+
+def normalizar_nombre(nombre):
+    """normaliza el nombre para evitar duplicados insensibles a mayusculas y minusculas"""
+    return nombre.strip().lower() # quito espacios y convierte a minusculas
+
+   #funcion para agregar un contacto si no existe
 def agregar_contacto(nombre,telefono,correo):
+    # normalizar el nombre
+    nombre_normalizado = normalizar_nombre(nombre)
+
+    # verificar si el nombre ya existe (comparando el nombre normalizado)
+    if nombre_normalizado in nombres_registrados:
+        print(f"El contacto con el nombre '{nombre}' ya existe.")
+        return  # no agregar el contacto si ya existe
+
     """
         validar nombre: no debe estar vacio
         Si el nombre ingresado es " " (solo espacios), nombre.strip()
@@ -12,12 +33,13 @@ def agregar_contacto(nombre,telefono,correo):
         "El nombre no puede estar vacío."
         Si el nombre ingresado es "Juan", nombre.strip() no cambia nada
         y el if no se ejecuta, por lo que el contacto se agrega.
-        """
+    """
     if not nombre.strip():
         print("El nombre no puede estar vacio.")
         return
-    # validar telefono: debe ser solo numeros y tener entre
-    # 7 y 15 caracteres
+
+    # validar telefono: debe ser solo numeros y tener entre 7 y 15 caracteres
+
     if not telefono.isdigit() or not (7 <= len(telefono) <= 15):
         print("El telefono debe contener solo numeros y tener entre 7 y 15 digitos")
         return  # Después de mostrar el mensaje, el return hace que la función se detenga
@@ -26,17 +48,20 @@ def agregar_contacto(nombre,telefono,correo):
         # Sin el return, el código seguiría ejecutándose y agregaría
         # el contacto incluso si el nombre no es válido.
     # validar correo: debe tener el formato esperado
+
     if not re.match(r"[^@]+@[^@]+\.[^@]+", correo):  # Esto es una expresión regular simple para correos
         print("El correo no tiene un formato válido.")
         return
+    '''
     #verifica si el nombre ya existe
     for contacto in contactos:
         if contacto["nombre"].lower() == nombre.lower():
             # convierte todos los caracteres a minúsculas, "Juan" es igual a "juan"
             print(f"El contacto con el nombre {nombre} ya existe")
             return # no agregar el contacto si ya existe
+    '''
 
-    #si no existe ,crear un diccionsrio con los datos del contacto
+    #crear un diccionario con los datos del contacto
     contacto = {
 
         "nombre": nombre,
@@ -44,6 +69,10 @@ def agregar_contacto(nombre,telefono,correo):
         "correo": correo
     }
 
+    # Guardar el nombre normalizado en el conjunto para futuras verificaciones
+    nombres_registrados.add(nombre_normalizado)
+
+    # Agregar el contacto a la lista
     contactos.append(contacto)
     print(f"Contacto {nombre} agregado correctamente")
 
