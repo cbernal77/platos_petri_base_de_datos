@@ -5,11 +5,12 @@ Created on Thu Nov 28 14:42:01 2024
 @author: fbac7
 """
 import tkinter as tk
-from cProfile import label
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import json
 import os
+
+
 
 platos = []
 
@@ -24,8 +25,8 @@ def cargar_platos():
 
 # Guardar los platos en el archivo JSON
 def guardar_platos_en_json():
-    with open("platos.json", "w", encoding="utf-8") as file:
-        json.dump(platos, file, ensure_ascii=False, indent=4)
+    with open("platos.json", "w", encoding="utf-8") as f:
+        json.dump(platos, f, ensure_ascii=False, indent=4)
     print("Platos guardados en el archivo JSON.")
 
 # Lista global de platos
@@ -305,6 +306,24 @@ def agregar_boton_comentario():
     btn_comentar = tk.Button(root, text= "Agregar Comentario", command=abrir_ventana_comentario) # Llamar a abrir_ventana_comentario directamente
     canvas.create_window(260, 380, window=btn_comentar)
 
+def eliminar_comentario():
+
+    id_plato = entry_id.get()
+    if not id_plato:
+        messagebox.showinfo("Error","Por favor un Id valido")
+        return
+
+    for plato in platos:
+        if plato["ID"] == id_plato:
+            if 'comentario' in plato:
+                del plato['comentario']
+                messagebox.showinfo("eliminar comentario","El comentario ha sido eliminado exitosamente")
+            else:
+                messagebox.showinfo("sin comentario", f"el plato con ID {id_plato} no tiene comentario")
+            return
+    messagebox.showinfo("plato no encontrado", f"no se encontro un plato con ID {id_plato}")
+
+
 
 def confirmar_salir():
     respuesta = messagebox.askyesno("Confirmar salida", "¿Está seguro de que quiere salir?")
@@ -370,6 +389,9 @@ def interfaz_grafica():
     
     # En la interfaz gráfica:
     button_mover = tk.Button(root, text="Mover plato (Solo laboratorista)", bd=5, relief="raised", command=mover_plato)
+
+    btn_eliminar_comentario = tk.Button(root, text="eliminar comentario", command=eliminar_comentario)
+    canvas.create_window(400, 380,window = btn_eliminar_comentario)
 
 
     canvas.create_window(150, 60, window=btn_agregar)
